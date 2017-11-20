@@ -1,0 +1,135 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Karbo Nodes Map</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin=""/>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.2.0/dist/MarkerCluster.Default.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://www.amcharts.com/lib/3/plugins/export/export.css" type="text/css" media="all"/>
+</head>
+
+<style>
+    body {
+        background-color: #eeeeee;
+    }
+
+    #map {
+        height: 480px;
+    }
+
+    #chart {
+        width: 100%;
+        height: 500px;
+        font-size: 11px;
+        overflow: visible;
+    }
+</style>
+
+<body>
+<div class="container">
+    <div class="row">
+        <h2>Karbo Nodes Map</h2>
+        <div id="map"></div>
+
+        <div class="col-sm-7">
+            <h2>Country list</h2>
+        </div>
+
+        <div class="col-sm-6">
+            <table id="country-list" class="table table-hover table-condensed" style="width: auto;">
+                <thead>
+                <tr>
+                    <th>Country</th>
+                    <th>Nodes</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>United States</td>
+                    <td style="text-align: right;">522</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm-6">
+            <div id="chart"></div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+        integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+        crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.2.0/dist/leaflet.markercluster.js"></script>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    const locations = <%- locations %>;
+
+    const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Points &copy 2012 LINZ'
+    });
+
+    const map = L.map('map', {layers: [tiles]});
+
+    const locationsToCount = {};
+
+    const markers = L.markerClusterGroup();
+    locations.forEach((ip) => {
+        if (locationsToCount[ip.country_name]) {
+            locationsToCount[ip.country_name]++;
+        } else {
+            locationsToCount[ip.country_name] = 1;
+        }
+        markers.addLayer(L.marker([ip.latitude, ip.longitude]));
+    });
+    map.addLayer(markers);
+    map.fitWorld().zoomIn();
+
+    const locationsArray = Object.keys(locationsToCount).map(k => [k, locationsToCount[k]]);
+
+    const renderCountries = () => {
+        locationsArray.sort((a, b) => b[1] - a[1]);
+
+        document
+            .querySelector('#country-list tbody')
+            .innerHTML = locationsArray.reduce((a, v) => a += `<tr>
+                <td>${v[0]}</td>
+                <td style="text-align: right;">${v[1]}</td>
+            </tr>`, '');
+    }
+
+    google.charts.load('current', {'packages': ['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        const data = google.visualization.arrayToDataTable([['Task', 'Hours per Day']].concat(locationsArray));
+
+        const options = {
+            backgroundColor: '#eee',
+            chartArea: {left: 0, top: 0, width: "100%", height: '60%'},
+            legend: {position: 'right'},
+            pieHole: 0.3,
+        };
+
+        const chart = new google.visualization.PieChart(document.getElementById('chart'));
+        chart.draw(data, options);
+    }
+
+    renderCountries();
+</script>
+</body>
+</html>
