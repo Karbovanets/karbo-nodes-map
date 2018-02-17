@@ -4,6 +4,9 @@ Visualizes QWC nodes on the map.
 
 ## How to run
 `npm i`
+
+Set your peerAddress to your Daemon-IP or Hostname in locations.js on Line 8!
+
 `node app.js`
 Open localhost:8080.
 
