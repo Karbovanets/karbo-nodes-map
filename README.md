@@ -1,6 +1,6 @@
-# Karbo nodes map
+# Qwertycoin nodes map
 
-Visualizes KRB nodes on the map.
+Visualizes QWC nodes on the map.
 
 ## How to run
 `npm i`
@@ -9,4 +9,4 @@ Open localhost:8080.
 
 It's caching nodes' ips every 24 hrs into `.cache` folder.
 
-![Map](https://image.prntscr.com/image/l4VjtIIjS6mK3w40HogBGQ.png)
+![Map](http://fs1.directupload.net/images/180217/rgo8gbr4.jpg)
