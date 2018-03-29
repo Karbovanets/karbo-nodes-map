@@ -5,7 +5,7 @@ const cache = new CachemanFile({tmpDir: '.cache', ttl: 24*3600,});
 
 const getPeers = async () => {
     try {
-        const res = await axios.get('http://95.46.98.64:32348/peers');
+        const res = await axios.get('YOURQWCDAEMON_IP:8197/peers');
         if (!res.data.peers) throw new Error('Missing peers.');
         console.log(`${res.data.peers.length} peers found`);
         return res.data.peers;
