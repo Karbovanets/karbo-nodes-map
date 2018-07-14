@@ -21,8 +21,8 @@ const getLocation = async (ip) => new Promise((resolve) => {
             return resolve(value);
         }
         try {
-            const res = await axios.get(`https://freegeoip.net/json/${ip}`);
-            cache.set(ip, res.data);
+            const res = await axios.get(`http://127.0.0.1:8080/json/${ip}`);
+            cache.set(ip, res.data, 24*3600);
             resolve(res.data);
         } catch (e) {
             console.log('Can\'t get location', e);
@@ -39,7 +39,7 @@ const getLocations = async () => {
 
 const cacheLocations = async () => {
     const locations = await getLocations();
-    cache.set('locations', JSON.stringify(locations))
+    cache.set('locations', JSON.stringify(locations), 180);
 };
 
 const getCachedLocations = () => new Promise((resolve) => {
