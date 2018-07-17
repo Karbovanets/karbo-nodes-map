@@ -23,5 +23,5 @@ Open localhost:9090.
 
 It's caching nodes' ips every 24 hrs into `.cache` folder.
 
-![Map](https://qwertycoin.org/wp-content/uploads/2018/03/qwcnodesogimage.png)
+![Map](https://cdn.qwertycoin.org/images/other/qwcnodesogimage.png)
 		
