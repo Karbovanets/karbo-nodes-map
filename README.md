@@ -19,7 +19,7 @@ chmod +x freegeoip
 and run
 `npm i`
 `sudo node app.js`
-Open localhost:8081.
+Open localhost:9090.
 
 It's caching nodes' ips every 24 hrs into `.cache` folder.
 
