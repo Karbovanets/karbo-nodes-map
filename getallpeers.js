@@ -10,7 +10,10 @@ const port = 32348;
 const seednode = "95.46.98.64"; 
 const freegeoserverUrl = "http://127.0.0.1:8080";
 let mySet = new Set();
-
+const clrcache =() => {
+    cache.del("masterNodelocations");
+    cache.del("locations");
+}
 const getLocation = async (ip, saveip) => new Promise((resolve) => {
     cache.get(ip, async (err, value) => {
         if (value) {
@@ -31,7 +34,7 @@ const getLocation = async (ip, saveip) => new Promise((resolve) => {
                 resolve(res.data);
             }
         } catch (e) {
-            console.log('Can\'t get location', e);
+           // console.log('Can\'t get location', e);
         }
     });
 });
@@ -127,10 +130,10 @@ const getLocations = () => new Promise((resolve) => {
     });
 });
 module.exports = {
-    cacheLocations,
-    getLocations,
-    getMasterNodes
-
+  cacheLocations,
+  getLocations,
+  getMasterNodes,
+  clrcache
 };
  //cacheLocations().then(result =>{ getMasterNodes().then( item => console.log(item)) })
 

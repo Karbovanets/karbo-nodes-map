@@ -7,7 +7,10 @@ app.set('view engine', 'ejs');
 app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + '/vendor'));
 // blog home page
-
+app.get('/clrcache',  (req, res) => {
+    locations.clrcache();
+    res.send("clrcache");
+});
 app.get('/locations', async (req, res) => {
     res.send(await locations.getLocations());
 });
