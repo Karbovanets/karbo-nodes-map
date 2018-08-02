@@ -78,6 +78,8 @@
         
         </div>
         <div class="col-sm-4">
+             
+            <div class="info"></div>
             <div class="loader"></div>
             <div id="chart"><canvas id="Chart" style="margin: 0 auto;"></canvas></div>
             <div id="country_list"><table class="table table-striped"><tbody id="tableBody"></tbody></table></div>
@@ -103,6 +105,7 @@ function buildMapv3(){
 for(var item in countryCount) 
 {
     let count = countryCount[item];
+    
     labels.push(item);
     data.push(count);
     
@@ -113,7 +116,7 @@ for(var item in countryCount)
     if(item == 'Hong Kong') item = 'China';
     if(item == 'Republic of Korea') item = 'South Korea';
     if(item == 'Republic of Moldova') item = 'Moldova';
-    if(item == 'Palestine') item = 'Israel';
+    
 
     placeOnMap(item,count);
     if(countryLayers.has(item))
@@ -159,6 +162,7 @@ function displayTable(countryCount){
      $("#tableBody >tr").remove();
      let countryList = [];
         for(var item in countryCount){
+            
             let count = countryCount[item];
         if(item == 'United States') item = 'United States of America';
         if(item == 'Republic of Lithuania') item = 'Lithuania';
@@ -167,7 +171,7 @@ function displayTable(countryCount){
         if(item == 'Republic of Korea') item = 'South Korea';
         if(item == 'Republic of Moldova') item = 'Moldova';
         if(item == 'Hong Kong') item = 'China';
-        if(item == 'Palestine') item = 'Israel';
+     
             countryList.push({name : item,count: count});
         } 
     countryList.sort(function (a, b) {
@@ -311,13 +315,27 @@ var countrieslayerGroup   = L.layerGroup();
     countrieslayerGroup.addTo(mymap);				
     
     mymap.fitWorld().zoomIn();
-    $(document).ready(function() {
-            $.get("/locations", function( data ) {
-                countryCount = data;
+    function getLocations(){
+        $.get("/locations", function (data) {
+            countryCount = data;
+            if (countryCount.length == 0) {
+                console.log("node location's not ready...");
+                setTimeout(getLocations, 1000 * 20);
+            } else {
                 buildMapv3();
-                 $(".loader").hide();
+                $(".loader").hide();
 
-            });
+            }
+
+        }).fail(function () {
+            $(".info").show();
+            $(".info").text("can't load data form server")
+            $(".loader").hide();
+        })
+    }
+    $(document).ready(function() {
+        $(".info").show()
+        getLocations();
     });
 
 
