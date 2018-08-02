@@ -15,7 +15,8 @@ chmod +x freegeoip
 ```
 and run
 `npm i`
-`sudo node app.js`
+`sudo node app.js --startnode=[str] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[str]`
+interval must more than 3600 
 Open localhost:8081.
 
 It's caching nodes' ips every 24 hrs into memory 
