@@ -15,7 +15,7 @@ chmod +x freegeoip
 ```
 and run
 `npm i`
-`sudo node app.js --startnode=[str] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[str]`
+`sudo node app.js --startnode=[str] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[ip:port]]`
 interval must more than 3600 
 Open localhost:8081.
 

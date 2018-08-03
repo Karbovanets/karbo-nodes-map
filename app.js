@@ -1,15 +1,17 @@
 const express = require('express');
 const app = express();
 const locations = require("./getallpeers.js");
+let   interval =3600;//sec
 
 const argv = require("yargs")
   .default("port", 32348)
   .default("freegeoserverUrl", "127.0.0.1:8080")
-  .default("interval", 3600)
-  .usage("Usage: $0 --startnode=[str] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[str]]")
-    .help('h')
-    .alias('h', 'help').argv;
-let   interval =3600;//sec
+  .default("interval", interval)
+  .usage(
+    "Usage: $0 --startnode=[hostname] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[hostname:port]]"
+  )
+  .help("h")
+  .alias("h", "help").argv;
 
 app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + '/vendor'));

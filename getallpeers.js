@@ -12,6 +12,7 @@ let failCount = 0;
 const clrcache = () => {
   cache.del("masterNodelocations");
   cache.del("locations");
+  cacheLocations();
 };
 
 const getLocation = async (ip, saveip, freegeoserverUrl) =>
@@ -35,18 +36,19 @@ const getLocation = async (ip, saveip, freegeoserverUrl) =>
         }
       } catch (e) {
         console.log(
-          "Can't get location failCount:" +
-            failCount++ +
-            " url: " +
-            freegeoserverUrl +
-            " " +
-            e.message
+          "Can't get location  url: " + freegeoserverUrl + " " + e.message
         );
-        if (failCount < 1000) {
-          getLocation(ip, saveip, freegeoserverUrl);
-        } else {
-          resolve("-");
-        }
+        // if (failCount < 10) {
+        //     let wait = setTimeout(() => {
+        //         clearTimeout(wait);
+
+        //       getLocation(ip, saveip, freegeoserverUrl);
+        //     }, 500);
+
+        // } else {
+        //   resolve("-");
+        // }
+        resolve("-");
       }
     });
   });
@@ -71,7 +73,7 @@ async function getFeeByIp(ip, port) {
     //console.log(`${res.data.fee_address} fee_address found for ${ip}`);
     return ip;
   } catch (e) {
-    //console.log('Can\'t get peers');
+    //console.error('Can\'t get fee_address');
     return Promise.resolve("");
     //Promise.reject(new Error("Can\'t get peers"));
   }
@@ -101,7 +103,6 @@ const getMasterNodes = freegeoserverUrl =>
         );
       } else {
         console.log("re new cashe");
-        //cacheLocations().then(()=>resolve(getMasterNodes()))
         resolve([]);
       }
     });
@@ -109,6 +110,7 @@ const getMasterNodes = freegeoserverUrl =>
 
 const cacheLocations = async (startnode, port, freegeoserverUrl) => {
   console.log(`run cacheLocations: startnode = ${startnode}:${port}`);
+
   console.time("getAllpeers");
   const l = await getAllpeers(startnode, port);
   const clearArray = l.reduce((a, b) => [...a, ...b]);
@@ -116,35 +118,42 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
   const newclearArray = new Set(clearArray);
   console.log(" getAllpeers size: " + newclearArray.size);
   console.timeEnd("getAllpeers");
+
   console.time("getLocation");
   const l2 = await Promise.all(
     Array.from(newclearArray).map(peer => {
       const [ip] = peer.split(":");
+
       return getLocation(ip, false, freegeoserverUrl);
     })
   );
   console.log(" get all peers location ");
-  console.timeEnd("getLocation");
-  console.time("get master nodes");
-  const l3 = await Promise.all(
-    Array.from(newclearArray).map(peer => {
-      const [ip] = peer.split(":");
-      return getFeeByIp(ip, port);
-    })
-  );
-  console.log(" get master nodes ");
-  console.timeEnd("get master nodes");
+  console.log("empty[-]" + l2.filter(item => item == "-").length);
+
   let counts = {};
-  //cache.set("ips", Array.from(newclearArray), 3600);
-
-  //console.log(l3.filter( item => item!=''));
-  cache.set("masterNodelocations", l3.filter(item => item != ""), cachettl);
-
   l2.forEach(function(x) {
     counts[x] = (counts[x] || 0) + 1;
   });
   //console.log(counts.length);
   cache.set("locations", counts, cachetll4nodes);
+
+  console.timeEnd("getLocation");
+
+  console.time("get master nodes");
+  console.log(" start get master nodes ");
+  const l3 = await Promise.all(
+    Array.from(newclearArray).map(peer => {
+      const [ip] = peer.split(":");
+      if (!ip) console.log("peer:" + peer);
+
+      return getFeeByIp(ip, port);
+    })
+  );
+  console.log(" get master nodes ");
+  console.timeEnd("get master nodes");
+  //cache.set("ips", Array.from(newclearArray), 3600);
+
+  cache.set("masterNodelocations", l3.filter(item => item != ""), cachettl);
 
   mySet = new Set();
   failCount = 0;
