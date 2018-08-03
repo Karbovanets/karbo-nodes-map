@@ -1,6 +1,7 @@
 # Karbo nodes map
 
-Visualizes KRB nodes and masternodes on the map.
+Visualizes KRB nodes and master nodes on the map.
+
 
 ## How to run
 install and run freegeoip
@@ -14,8 +15,10 @@ chmod +x freegeoip
 ```
 and run
 `npm i`
-`sudo node app.js`
+`sudo node app.js --startnode=[str] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[str]`
+interval must more than 3600 
 Open localhost:8081.
 
 It's caching nodes' ips every 24 hrs into memory 
+
 ![image](https://user-images.githubusercontent.com/3770296/43407301-0869e3dc-9427-11e8-91f5-641fce4aa510.png)
