@@ -5,6 +5,7 @@ const locations = require("./getallpeers.js");
 const argv = require("yargs")
   .default("port", 32348)
   .default("freegeoserverUrl", "127.0.0.1:8080")
+  .default("interval", 3600)
   .usage("Usage: $0 --startnode=[str] --interval=[num] [[ --port=[num]], --freegeoserverUrl=[str]]")
     .help('h')
     .alias('h', 'help').argv;
@@ -39,5 +40,11 @@ locations.cacheLocations(argv.startnode, argv.port, argv.freegeoserverUrl);
 
 app.listen(8081);
 console.log("interval set to : " + interval+" s.");
-setInterval(locations.cacheLocations, interval * 1000, argv.startnode, argv.port);
+setInterval(
+  locations.cacheLocations,
+  interval * 1000,
+  argv.startnode,
+  argv.port,
+  argv.freegeoserverUrl
+);
 console.log('listening on port 8081');
