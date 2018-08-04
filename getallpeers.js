@@ -9,10 +9,10 @@ const cachetll4nodes = 24 * 3600;
 
 let mySet = new Set();
 let failCount = 0;
-const clrcache = () => {
+const clrcache = (startnode, port, freegeoserverUrl) => {
   cache.del("masterNodelocations");
   cache.del("locations");
-  cacheLocations();
+  cacheLocations(startnode, port, freegeoserverUrl);
 };
 
 const getLocation = async (ip, saveip, freegeoserverUrl) =>
@@ -118,7 +118,11 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
   const newclearArray = new Set(clearArray);
   console.log(" getAllpeers size: " + newclearArray.size);
   console.timeEnd("getAllpeers");
-
+  if (newclearArray.size == 0) {
+      console.log(" try getAllpeers size")
+      setTimeout(cacheLocations, 5000, startnode, port, freegeoserverUrl);
+      return;
+  }
   console.time("getLocation");
   const l2 = await Promise.all(
     Array.from(newclearArray).map(peer => {

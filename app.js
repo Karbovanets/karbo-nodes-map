@@ -17,7 +17,7 @@ app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + '/vendor'));
 // blog home page
 app.get('/clrcache',  (req, res) => {
-    locations.clrcache();
+    locations.clrcache(argv.startnode, argv.port, argv.freegeoserverUrl);
     res.send("clrcache");
 });
 app.get('/locations', async (req, res) => {
