@@ -111,7 +111,7 @@
 </div>
 
 <script>
-
+    var port=<%- port %>;
     var karboLogoPaht = 'img/sm-krb-logo.png';
     var karboMarkerHolePaht = 'img/marker_hole.png';
     var myIcon = L.icon({
@@ -215,11 +215,11 @@
     function clickOnPopup(e) {
         //setContent
         var contest = this;
-        //alert(this.getPopup().getContent());
-        getInfo($(this.getPopup().getContent())[0].text).then((successMessage) => {
-            var s = contest.getPopup().getContent();
+        
+        getInfo($(this.getPopup().getContent())[0].text).then((successMessage, status, xhr) => {
+            var s = $(this.getPopup().getContent())[0].outerHTML+$(this.getPopup().getContent())[1].outerHTML;
             for (i in successMessage) {
-                s += i + ":" + successMessage[i] + "\n"
+                s += i + ": " + successMessage[i] + "<br>"
             }
             contest.getPopup().setContent(s);
 
@@ -240,7 +240,7 @@
             }
 
             colors.push(getRandomColor());
-            var marker = L.marker([node.latitude, node.longitude], { opacity: 0.9 }).bindPopup(`<a href='http://${node.ip}' target=_blank >${node.ip}</a> <br></b>`)
+            var marker = L.marker([node.latitude, node.longitude], { opacity: 0.9 }).bindPopup(`<a href='http://${node.ip}' target=_blank >${node.ip}</a><br>`,{ maxWidth: 700})
                 .setIcon(myIcon)
                 .on('click', clickOnPopup)
                 .openPopup();
@@ -258,9 +258,10 @@
     function getInfo(url) {
         return $.ajax({
             dataType: "json",
-            url: "http://" + url + ":32348/getinfo",
+            url: "http://" + url + ":"+ port+"/getinfo",
             timeout: 2000,
             beforeSend: function (xhr) {
+                xhr.url = url,
                 xhr.startTme = Date.now()
             }
         });
@@ -308,7 +309,7 @@
 
     mymap.fitWorld().zoomIn();
     function getLocations() {
-        $.get("/getmastenodes", function (data) {
+        $.get("/getmasternodes", function (data) {
 
             if (data.length == 0) {
                 console.log("node location's not ready...");

@@ -12,9 +12,10 @@ const argv = require("yargs")
   )
   .help("h")
   .alias("h", "help").argv;
-
+app.set("view engine", "ejs");
 app.set("views", __dirname + "/views");
 app.use(express.static(__dirname + '/vendor'));
+app.use(express.static(__dirname + "/views"));
 // blog home page
 app.get('/clrcache',  (req, res) => {
     locations.clrcache(argv.startnode, argv.port, argv.freegeoserverUrl);
@@ -23,7 +24,10 @@ app.get('/clrcache',  (req, res) => {
 app.get('/locations', async (req, res) => {
     res.send(await locations.getLocations());
 });
-app.get('/getmastenodes', async (req, res) => {
+app.get("/masternodes", async (req, res) => {
+    res.render("masternodes", { port: argv.port });
+});
+app.get('/getmasternodes', async (req, res) => {
 
     res.send(await locations.getMasterNodes(argv.freegeoserverUrl));
 });

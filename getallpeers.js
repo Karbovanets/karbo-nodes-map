@@ -68,7 +68,9 @@ async function getPeerByIp(ip, port) {
 }
 async function getFeeByIp(ip, port) {
   try {
-    const res = await axios.get("http://" + ip + ":" + port + "/feeaddress");
+    const res = await axios.get("http://" + ip + ":" + port + "/feeaddress", {
+      timeout: 5500
+    });
     if (!res.data.fee_address) throw new Error("Missing fee_address.");
     //console.log(`${res.data.fee_address} fee_address found for ${ip}`);
     return ip;
@@ -109,19 +111,24 @@ const getMasterNodes = freegeoserverUrl =>
   });
 
 const cacheLocations = async (startnode, port, freegeoserverUrl) => {
-  console.log(`run cacheLocations: startnode = ${startnode}:${port}`);
+  console.log(`run cacheLocations: startnode = ${startnode}:${port} failCount:${failCount}`);
 
   console.time("getAllpeers");
   const l = await getAllpeers(startnode, port);
   const clearArray = l.reduce((a, b) => [...a, ...b]);
 
   const newclearArray = new Set(clearArray);
-  console.log(" getAllpeers size: " + newclearArray.size);
+  console.log("getAllpeers size: " + newclearArray.size);
   console.timeEnd("getAllpeers");
   if (newclearArray.size == 0) {
-      console.log(" try getAllpeers size")
-      setTimeout(cacheLocations, 5000, startnode, port, freegeoserverUrl);
-      return;
+    if (failCount > 5) {
+        console.log("get all peers faild ...");
+        process.exit(1);
+    }
+      console.log("try get all peers");
+    setTimeout(cacheLocations, 5000, startnode, port, freegeoserverUrl);
+    failCount++;
+    return;
   }
   console.time("getLocation");
   const l2 = await Promise.all(
@@ -131,7 +138,7 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
       return getLocation(ip, false, freegeoserverUrl);
     })
   );
-  console.log(" get all peers location ");
+  console.log("get all peers location ");
   console.log("empty[-]" + l2.filter(item => item == "-").length);
 
   let counts = {};
@@ -144,7 +151,7 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
   console.timeEnd("getLocation");
 
   console.time("get master nodes");
-  console.log(" start get master nodes ");
+  console.log("start get master nodes ");
   const l3 = await Promise.all(
     Array.from(newclearArray).map(peer => {
       const [ip] = peer.split(":");
@@ -153,7 +160,7 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
       return getFeeByIp(ip, port);
     })
   );
-  console.log(" get master nodes ");
+  console.log("get master nodes ");
   console.timeEnd("get master nodes");
   //cache.set("ips", Array.from(newclearArray), 3600);
 
