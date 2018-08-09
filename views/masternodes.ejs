@@ -11,6 +11,8 @@
 
     <meta property="og:title" content="Map of  Karbo (KRB) master nodes">
     <meta property="og:description" content="Map of  Karbo (KRB) master nodes, around the world">
+    <meta property="og:image:url" content="http://karbo.io/promo/krb-logo.png">
+    <meta property="og:image:secure_url" content="https://karbo.io/promo/krb-logo.png">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="/">
@@ -274,7 +276,7 @@
     var popups = [];
     var mymap = L.map('mapid');
 
-    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         subdomains: ['a', 'b', 'c']
@@ -292,7 +294,7 @@
             L.DomEvent
                 .addListener(img, 'click', L.DomEvent.stopPropagation)
                 .addListener(img, 'click', L.DomEvent.preventDefault)
-                .addListener(img, 'click', function () { location.href = 'http://karbo.io'; });
+                .addListener(img, 'click', function () { location.href = 'https://karbo.io'; });
             return img;
         },
 

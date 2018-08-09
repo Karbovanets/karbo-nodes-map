@@ -1,3 +1,5 @@
 .cache
 node_modules
 output.msg
+vendor/img/preview.png
+gulpfile.js
