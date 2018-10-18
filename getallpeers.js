@@ -15,10 +15,12 @@ const clrcache = (startnode, port, freegeoserverUrl) => {
   cacheLocations(startnode, port, freegeoserverUrl);
 };
 
-const getLocation = async (ip, saveip, freegeoserverUrl) =>
+const getLocation = async (ip, saveip, timeout, data, freegeoserverUrl) =>
   new Promise(resolve => {
     cache.get(ip, async (err, value) => {
       if (value) {
+        value.timeout = timeout;
+        value.data = data;
         if (!saveip) {
           return resolve(value.country_name);
         } else {
@@ -32,6 +34,8 @@ const getLocation = async (ip, saveip, freegeoserverUrl) =>
           resolve(res.data.country_name);
         } else {
           cache.set(ip, res.data, cachettl);
+          res.data.timeout = timeout;
+          res.data.data = data;
           resolve(res.data);
         }
       } catch (e) {
@@ -67,13 +71,16 @@ async function getPeerByIp(ip, port) {
   }
 }
 async function getFeeByIp(ip, port) {
+  const start = Date.now();
   try {
-    const res = await axios.get("http://" + ip + ":" + port + "/feeaddress", {
+    const res = await axios.get("http://" + ip + ":" + port + "/getinfo", {
       timeout: 5500
     });
     if (!res.data.fee_address) throw new Error("Missing fee_address.");
     //console.log(`${res.data.fee_address} fee_address found for ${ip}`);
-    return ip;
+    const end = Date.now() - start;
+    //console.error("end: "+end);
+    return { ip: ip, timeout: Date.now() - start,data: res.data};
   } catch (e) {
     //console.error('Can\'t get fee_address');
     return Promise.resolve("");
@@ -100,8 +107,9 @@ const getMasterNodes = freegeoserverUrl =>
   new Promise(resolve => {
     cache.get("masterNodelocations", (err, value) => {
       if (value) {
+        
         resolve(
-          Promise.all(value.map(ip => getLocation(ip, true, freegeoserverUrl)))
+          Promise.all(value.map(val => { return getLocation(val.ip, true, val.timeout, val.data, freegeoserverUrl);}))
         );
       } else {
         console.log("re new cashe");
@@ -117,10 +125,10 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
   const l = await getAllpeers(startnode, port);
   const clearArray = l.reduce((a, b) => [...a, ...b]);
 
-  const newclearArray = new Set(clearArray);
-  console.log("getAllpeers size: " + newclearArray.size);
+  const newClearArray = new Set(clearArray);
+  console.log("getAllpeers size: " + newClearArray.size);
   console.timeEnd("getAllpeers");
-  if (newclearArray.size == 0) {
+  if (newClearArray.size == 0) {
     if (failCount > 5) {
         console.log("get all peers faild ...");
         process.exit(1);
@@ -131,18 +139,18 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
     return;
   }
   console.time("getLocation");
-  const l2 = await Promise.all(
-    Array.from(newclearArray).map(peer => {
+  const allNodelocations = await Promise.all(
+    Array.from(newClearArray).map(peer => {
       const [ip] = peer.split(":");
 
-      return getLocation(ip, false, freegeoserverUrl);
+      return getLocation(ip, false, 0, {}, freegeoserverUrl);
     })
   );
   console.log("get all peers location ");
-  console.log("empty[-]" + l2.filter(item => item == "-").length);
+  console.log("empty[-]" + allNodelocations.filter(item => item == "-").length);
 
   let counts = {};
-  l2.forEach(function(x) {
+  allNodelocations.forEach(function(x) {
     counts[x] = (counts[x] || 0) + 1;
   });
   //console.log(counts.length);
@@ -152,8 +160,8 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
 
   console.time("get master nodes");
   console.log("start get master nodes ");
-  const l3 = await Promise.all(
-    Array.from(newclearArray).map(peer => {
+  const masterNodelocations = await Promise.all(
+    Array.from(newClearArray).map(peer => {
       const [ip] = peer.split(":");
       if (!ip) console.log("peer:" + peer);
 
@@ -164,7 +172,7 @@ const cacheLocations = async (startnode, port, freegeoserverUrl) => {
   console.timeEnd("get master nodes");
   //cache.set("ips", Array.from(newclearArray), 3600);
 
-  cache.set("masterNodelocations", l3.filter(item => item != ""), cachettl);
+  cache.set("masterNodelocations", masterNodelocations.filter(item => item != ""), cachettl);
 
   mySet = new Set();
   failCount = 0;

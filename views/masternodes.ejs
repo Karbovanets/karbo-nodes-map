@@ -28,7 +28,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.7/js/jquery.tablesorter.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.30.7/css/theme.blue.css">
     <!-- vendor -->
     <script type="text/javascript" src="leaflet_numbered_markers.js"></script>
     <link rel="stylesheet" href="css/leaflet_numbered_markers.css" />
@@ -98,18 +99,22 @@
             <div id="chart">
                 <canvas id="Chart" style="margin: 0 auto;"></canvas>
             </div>
-            <div id="country_list">
-                <table class="table table-striped">
-                    <thead>
-                        <th>url
-                            <th>start time
-                                <th>ping</th>
-                    </thead>
-                    <tbody id="tableBody"></tbody>
-                </table>
-            </div>
         </div>
     </div>
+    <div class="row">
+    <table id="nodeTable" class="tablesorter">
+        <thead>
+            <th>url</th>
+            <th>height</th>
+            <th>last_known_block_index</th>
+            <th>incoming_connections_count</th>
+            <th>version</th>
+            <th>start time</th>
+            <th>ping</th>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
 </div>
 
 <script>
@@ -120,12 +125,18 @@
         iconUrl: 'img/marker-icon-karbo.png',
         iconSize: [25, 41]
     });
+    var url2ip= [{ "url": "node.karbowanec.com", "ip": "80.211.164.116" }, { "url": "karbonode.tk", "ip": "45.77.141.1" }, { "url": "karbonode.pp.ua", "ip": "178.212.192.211" }, { "url": "node.karbo.space", "ip": "85.194.241.83" }, { "url": "looongcat.pp.ua", "ip": "51.15.82.38" }, { "url": "krb.sberex.com", "ip": "46.30.167.213" }, { "url": "node.karbo-exchange.com.ua", "ip": "128.0.174.209" }, { "url": "tonykarbo.tk", "ip": "51.15.92.247" }, { "url": "krbnode.cf", "ip": "80.211.164.116" }, { "url": "karbo.cash", "ip": "185.67.3.41" }, { "url": "node.karbo.farm", "ip": "159.89.31.88" }, { "url": "free.rublin.org", "ip": "89.184.66.76" }, { "url": "karbo.world", "ip": "46.30.164.29" }, { "url": "krbnode.3t.org.ua", "ip": "77.239.179.161" }, { "url": "node.krb-ua.tk", "ip": "212.24.106.170" }, { "url": "node.krb.mypool.online", "ip": "195.201.46.226" }, { "url": "node.krbpool.pp.ua", "ip": "92.244.110.146" }, { "url": "krb.nodemaster.pro", "ip": "93.126.84.180" }, { "url": "karbo.pool.multed.com", "ip": "5.45.125.39" }, { "url": "krb.pool.ualinux.com", "ip": "185.121.110.122" }, { "url": "karbo.dlinkddns.com", "ip": "94.158.158.86" }, { "url": "kabany.tk", "ip": "37.194.10.30" }, { "url": "krb.00.net.ua", "ip": "213.186.121.88" }, { "url": "krb.gordon.host", "ip": "89.184.67.7" }, { "url": "karboss.tk", "ip": "80.211.135.223" }, { "url": "karbonode.top", "ip": "51.15.232.206" }, { "url": "noda.pp.ua", "ip": "51.15.119.96" }, { "url": "krb.hashgang.io", "ip": "159.89.31.88" }, { "url": "krbnode.pp.ua", "ip": "167.99.136.222" }, { "url": "krb2.nodemaster.pro", "ip": "148.251.11.177" }, { "url": "krb2.nodemaster.pro", "ip": "148.251.11.177" }];
     function displayTable(_countries) {
+
         _countries.forEach(function (item, i, arr) {
-            getInfo(item.url).then((value, status, xhr) => {
-                console.log(xhr.startTme);
-                $('#tableBody').append('<tr><td onclick="panTo(' + item.geo[0] + ',' + item.geo[1] + ')">' + item.url + '</td><td>' + printUptime(value.start_time) + '</td><td>' + (Date.now() - xhr.startTme) + '</td></tr>');
-            })
+
+            value = item.data;
+            var val=url2ip.filter(val=>val.ip== item.url);
+             $('#tableBody').append('<tr><td onclick="panTo(' + item.geo[0] + ',' + item.geo[1] + ')"><a target="_blank" href="http://'+ (val.length ? val[0].url : item.url)+'">' +  (val.length ? val[0].url : item.url)+'</a></td><td>' + value.height + '<td>' + value.last_known_block_index + '</td><td>' + value.incoming_connections_count + "</td><td>" + value.version + "</td><td>" + printUptime(value.start_time) + '</td><td>' + item.timeout + /*(Date.now() - xhr.startTme) +*/ '</td></tr>');
+            // getInfo(item.url).then((value, status, xhr) => {
+            //     console.log(value);
+               
+            // })
         })
     }
     function panTo(a, b) {
@@ -146,7 +157,8 @@
             ].join('');
 
         }
-        return uptime ? str_out : '';//'en-US',{ formatMatcher: 'best fit'}):'';
+        //return uptime ? str_out : '';//'en-US',{ formatMatcher: 'best fit'}):'';
+        return new Date(uptime * 1000).toLocaleString('en-US');
     }
     function displayChart(Labels, data) {
         var ctx = document.getElementById("Chart");
@@ -248,13 +260,23 @@
                 .openPopup();
             markers.addLayer(marker);
             popups.push({ popup: marker, url: node.ip });
-            countries.push({ url: node.ip, name: node.country_name, uptime: '', geo: [node.latitude, node.longitude] });
+            countries.push({ url: node.ip, name: node.country_name, timeout: node.timeout,data: node.data, uptime: '', geo: [node.latitude, node.longitude] });
 
         })
         displayChart(labels, data);
         displayTable(countries);
-
-
+        $("#nodeTable").tablesorter({ theme: 'blue', sortList: [[5, 0],[6, 0]], widgets: ['zebra'] });
+        
+        function updateNodeStatus() {
+        
+          //  $.tablesorter.clearTableBody($("#nodeTable"));
+          //  $("#nodeTable > tbody >tr").remove();
+            $("#nodeTable").trigger("update");
+        
+        }
+        
+        setTimeout(updateNodeStatus, 5000);
+        
         mymap.addLayer(markers);
     }
     function getInfo(url) {
