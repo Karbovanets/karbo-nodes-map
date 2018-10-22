@@ -99,6 +99,11 @@
             <div id="chart">
                 <canvas id="Chart" style="margin: 0 auto;"></canvas>
             </div>
+            <div id="country_list">
+                <table class="table table-striped">
+                    <tbody id="tableBodyCountry"></tbody>
+                </table>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -139,8 +144,51 @@
             // })
         })
     }
+    function displayTableWithCountries(countres) {
+        let countryList = [];
+        countryCount = countres.reduce((prev, curr) => (prev[curr.name] = ++prev[curr.name] || 1, prev), {})
+        
+        $("#tableBodyCountry >tr").remove();
+        for (var item in countryCount) {
+
+            let count = countryCount[item];
+            if (item == 'United States') item = 'United States of America';
+            if (item == 'Republic of Lithuania') item = 'Lithuania';
+            if (item == 'Serbia') item = 'Republic of Serbia';
+            if (item == 'Czechia') item = 'Czech Republic';
+            if (item == 'Republic of Korea') item = 'South Korea';
+            if (item == 'Republic of Moldova') item = 'Moldova';
+
+            countryList.push({ name: item, count: count });
+        }
+        countryList.sort((a, b) => {
+            if (parseInt(b.count) > parseInt(a.count)) {
+                return 1;
+            }
+            if (parseInt(b.count) < parseInt(a.count)) {
+                return -1;
+            }
+            return 0;
+        });
+
+        let total = 0;
+        for (var item in countryList) {
+
+            $('#tableBodyCountry:last-child').append("<tr><td  onclick='panToByName(\"" + countryList[item].name + "\")' >" + countryList[item].name + "</td><td>" + countryList[item].count + "</td></tr>");
+            total += countryList[item].count
+        }
+        $('#tableBodyCountry:last-child').append("<tr><td >Total </td><td>" + total + "</td></tr>");
+    }
     function panTo(a, b) {
         mymap.flyTo([a, b], 10);
+    }
+    function panToByName(name) {
+        const geoInfoCountry = allCountries[name];
+        let country = L.geoJson(geoInfoCountry, {
+
+        });
+        mymap.flyToBounds(country.getBounds(), { maxZoom: 5 });
+        
     }
     function printUptime(uptime) {
         var date;
@@ -190,19 +238,8 @@
             },
             onClick: function (e, d, f) {
                 var label = d[0]._model.label;
-
                 if (label == 'United States') label = 'United States of America';
-                const geoInfoCountry = allCountries[label];
-
-                var country = L.geoJson(geoInfoCountry, {
-                    style: function (feature) {
-                        return { color: d[0]._model.backgroundColor }
-                    }
-                });
-                //  
-
-                mymap.flyToBounds(country.getBounds(), { maxZoom: 8 });
-
+                panToByName(label);
             }
         };
 
@@ -265,6 +302,7 @@
         })
         displayChart(labels, data);
         displayTable(countries);
+        displayTableWithCountries(countries);
         $("#nodeTable").tablesorter({ theme: 'blue', sortList: [[5, 0],[6, 0]], widgets: ['zebra'] });
         
         function updateNodeStatus() {
@@ -332,27 +370,29 @@
     L.control.watermark({ position: 'bottomleft' }).addTo(mymap);
 
     mymap.fitWorld().zoomIn();
-    function getLocations() {
-        $.get("/getmasternodes", function (data) {
 
-            if (data.length == 0) {
-                console.log("node location's not ready...");
-                setTimeout(getLocations, 1000 * 20);
-            } else {
-                buildMapv3(data);
-                $(".loader").hide();
-
-            }
-
-        }).fail(function () {
-            $(".info").show();
-            $(".info").text("can't load data form server")
-            $(".loader").hide();
-        });
-    }
     //start
     $(document).ready(function () {
         $(".info").hide();
         getLocations();
     });
+    
+    function getLocations() {
+                $.get("/getmasternodes", function (data) {
+
+                    if (data.length == 0) {
+                        console.log("node location's not ready...");
+                        setTimeout(getLocations, 1000 * 20);
+                    } else {
+                        buildMapv3(data);
+                        $(".loader").hide();
+
+                    }
+
+                }).fail(function () {
+                    $(".info").show();
+                    $(".info").text("can't load data form server")
+                    $(".loader").hide();
+                });
+    }
 </script>
