@@ -22,3 +22,9 @@ Open localhost:8081.
 It's caching nodes' ips every 24 hrs into memory 
 
 ![image](https://user-images.githubusercontent.com/3770296/43407301-0869e3dc-9427-11e8-91f5-641fce4aa510.png)
+
+## Donations
+
+KRB: Kdev1L9V5ow3cdKNqDpLcFFxZCqu5W2GE9xMKewsB2pUXWxcXvJaUWHcSrHuZw91eYfQFzRtGfTemReSSMN4kE445i6Etb3
+Monero: 4AiWeKjAJ6KWUgr5TRHJHTAV5ZaeJ7kj8Kfb7bh9X3HA9KPCBWgp32Rd4J2Ho1zTeUQAQb2YZqTHRC3KTznzCt4oEnSbx7N
+Bitcoin: 1Aiwe1sPZiGTCeev1QVFa3KNiMTkjRM6oz
