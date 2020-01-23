@@ -33,6 +33,7 @@ Caching interval for node list is hardcoded for 24 hour.
 ![image](https://user-images.githubusercontent.com/3770296/43669800-83a4441a-978e-11e8-8966-b92856e8adf8.png)
 
 ## Donations
-KRB: [Kdev1L9V5ow3cdKNqDpLcFFxZCqu5W2GE9xMKewsB2pUXWxcXvJaUWHcSrHuZw91eYfQFzRtGfTemReSSMN4kE445i6Etb3](karbowanec:Kdev1L9V5ow3cdKNqDpLcFFxZCqu5W2GE9xMKewsB2pUXWxcXvJaUWHcSrHuZw91eYfQFzRtGfTemReSSMN4kE445i6Etb3)
+
+KRB: Kdev1L9V5ow3cdKNqDpLcFFxZCqu5W2GE9xMKewsB2pUXWxcXvJaUWHcSrHuZw91eYfQFzRtGfTemReSSMN4kE445i6Etb3
 Monero: 4AiWeKjAJ6KWUgr5TRHJHTAV5ZaeJ7kj8Kfb7bh9X3HA9KPCBWgp32Rd4J2Ho1zTeUQAQb2YZqTHRC3KTznzCt4oEnSbx7N
 Bitcoin: 1Aiwe1sPZiGTCeev1QVFa3KNiMTkjRM6oz
