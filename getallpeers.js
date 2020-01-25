@@ -60,7 +60,7 @@ const getLocation = async (ip, saveip, timeout, data, freegeoserverUrl) =>
 async function getPeerByIp(ip, port) {
   mySet.add(ip);
   try {
-    const res = await axios.get("http://" + ip + ":" + port + "/peers");
+    const res = await axios.get("http://" + ip + ":" + port + "/getpeers");
     if (!res.data.peers) throw new Error("Missing peers.");
     // console.log(`${res.data.peers.length} peers found`);
     return res.data.peers;
