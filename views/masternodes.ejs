@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <title>Karbo nodes master map</title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="Map of Karbo (KRB) master nodes">
+    <meta name="keywords" content="karbo, krb, cryptocurrency, node, карбо">
+    <meta name="author" content="mixer">
+
+    <meta property="og:title" content="Map of  Karbo (KRB) master nodes">
+    <meta property="og:description" content="Map of  Karbo (KRB) master nodes, around the world">
+    <meta property="og:image:url" content="https://karbo.io/promo/krb-logo.png">
+    <meta property="og:image:secure_url" content="https://karbo.io/promo/krb-logo.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin="anonymous"/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" integrity="sha384-lPzjPsFQL6te2x+VxmV6q1DpRxpRk0tmnl2cpwAO5y04ESyc752tnEWPKDfl1olr" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" integrity="sha384-5kMSQJ6S4Qj5i09mtMNrWpSi8iXw230pKU76xTmrpezGnNJQzj0NzXjQLLg+jE7k" crossorigin="anonymous">
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster-src.js" integrity="sha384-N9K+COcUk7tr9O2uHZVp6jl7ueGhWsT+LUKUhd/VpA0svQrQMGArhY8r/u/Pkwih" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" integrity="sha256-R4pqcOYV8lt7snxMQO/HSbVCFRPMdrhAFMH+vr9giYI=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.2/js/jquery.tablesorter.min.js" integrity="sha256-WX1A5tGpPfZZ48PgoZX2vpOojjCXsytpCvgPcRPnFKU=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.2/css/theme.blue.min.css" integrity="sha256-Xj5kQBWJMyOV0+sPr+wIBUHXdoZ00TPgT+RuiyOXtzo=" crossorigin="anonymous" />
+    <!-- vendor -->
+    <script src="leaflet_numbered_markers.js"></script>
+    <link rel="stylesheet" href="css/leaflet_numbered_markers.css" />
+    <script src="countries.geo.json"></script>
+    <style>
+        #mapid {
+
+            width: 100%;
+            height: 600px;
+            float: left;
+        }
+
+        #country_list {
+            height: 400px;
+            overflow: auto;
+        }
+
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            border-bottom: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<div class="container">
+    <h3>Karbo master nodes map
+        <u>
+            <small>
+                <a href="/index.html"> nodes map</a>
+            </small>
+        </u>
+    </h3>
+</div>
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-sm-8">
+            <div id="mapid"></div>
+
+        </div>
+        <div class="col-sm-4">
+            <div class="info"></div>
+            <div class="loader"></div>
+            <div id="chart">
+                <canvas id="Chart" style="margin: 0 auto;"></canvas>
+            </div>
+            <div id="country_list">
+                <table class="table table-striped">
+                    <tbody id="tableBodyCountry"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+    <table id="nodeTable" class="tablesorter">
+        <thead>
+            <th>url</th>
+            <th>height</th>
+            <th>last_known_block_index</th>
+            <th>incoming_connections_count</th>
+            <th>version</th>
+            <th>start time</th>
+            <th>ping</th>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+</div>
+
+<script>
+    var port=<%- port %>;
+    var karboLogoPaht = 'img/sm-krb-logo.png';
+    var karboMarkerHolePaht = 'img/marker_hole.png';
+    var myIcon = L.icon({
+        iconUrl: 'img/marker-icon-karbo.png',
+        iconSize: [25, 41]
+    });
+    var url2ip= [{ "url": "node.karbowanec.com", "ip": "80.211.164.116" }, { "url": "karbonode.tk", "ip": "45.77.141.1" }, { "url": "karbonode.pp.ua", "ip": "178.212.192.211" }, { "url": "node.karbo.space", "ip": "85.194.241.83" }, { "url": "looongcat.pp.ua", "ip": "51.15.82.38" }, { "url": "krb.sberex.com", "ip": "46.30.167.213" }, { "url": "node.karbo-exchange.com.ua", "ip": "128.0.174.209" }, { "url": "tonykarbo.tk", "ip": "51.15.92.247" }, { "url": "krbnode.cf", "ip": "80.211.164.116" }, { "url": "karbo.cash", "ip": "185.67.3.41" }, { "url": "node.karbo.farm", "ip": "159.89.31.88" }, { "url": "free.rublin.org", "ip": "89.184.66.76" }, { "url": "karbo.world", "ip": "46.30.164.29" }, { "url": "krbnode.3t.org.ua", "ip": "77.239.179.161" }, { "url": "node.krb-ua.tk", "ip": "212.24.106.170" }, { "url": "node.krb.mypool.online", "ip": "195.201.46.226" }, { "url": "node.krbpool.pp.ua", "ip": "92.244.110.146" }, { "url": "krb.nodemaster.pro", "ip": "93.126.84.180" }, { "url": "karbo.pool.multed.com", "ip": "5.45.125.39" }, { "url": "krb.pool.ualinux.com", "ip": "185.121.110.122" }, { "url": "karbo.dlinkddns.com", "ip": "94.158.158.86" }, { "url": "kabany.tk", "ip": "37.194.10.30" }, { "url": "krb.00.net.ua", "ip": "213.186.121.88" }, { "url": "krb.gordon.host", "ip": "89.184.67.7" }, { "url": "karboss.tk", "ip": "80.211.135.223" }, { "url": "karbonode.top", "ip": "51.15.232.206" }, { "url": "noda.pp.ua", "ip": "51.15.119.96" }, { "url": "krb.hashgang.io", "ip": "159.89.31.88" }, { "url": "krbnode.pp.ua", "ip": "167.99.136.222" }, { "url": "krb2.nodemaster.pro", "ip": "148.251.11.177" }, { "url": "krb2.nodemaster.pro", "ip": "148.251.11.177" }];
+    function displayTable(_countries) {
+
+        _countries.forEach(function (item, i, arr) {
+
+            value = item.data;
+            var val=url2ip.filter(val=>val.ip== item.url);
+             $('#tableBody').append('<tr><td onclick="panTo(' + item.geo[0] + ',' + item.geo[1] + ')"><a target="_blank" href="http://'+ (val.length ? val[0].url : item.url)+'">' +  (val.length ? val[0].url : item.url)+'</a></td><td>' + value.height + '<td>' + value.last_known_block_index + '</td><td>' + value.incoming_connections_count + "</td><td>" + value.version + "</td><td>" + printUptime(value.start_time) + '</td><td>' + item.timeout + /*(Date.now() - xhr.startTme) +*/ '</td></tr>');
+            // getInfo(item.url).then((value, status, xhr) => {
+            //     console.log(value);
+               
+            // })
+        })
+    }
+    function displayTableWithCountries(countres) {
+        let countryList = [];
+        countryCount = countres.reduce((prev, curr) => (prev[curr.name] = ++prev[curr.name] || 1, prev), {})
+        
+        $("#tableBodyCountry >tr").remove();
+        for (var item in countryCount) {
+
+            let count = countryCount[item];
+            if (item == 'United States') item = 'United States of America';
+            if (item == 'Republic of Lithuania') item = 'Lithuania';
+            if (item == 'Serbia') item = 'Republic of Serbia';
+            if (item == 'Czechia') item = 'Czech Republic';
+            if (item == 'Republic of Korea') item = 'South Korea';
+            if (item == 'Republic of Moldova') item = 'Moldova';
+
+            countryList.push({ name: item, count: count });
+        }
+        countryList.sort((a, b) => {
+            if (parseInt(b.count) > parseInt(a.count)) {
+                return 1;
+            }
+            if (parseInt(b.count) < parseInt(a.count)) {
+                return -1;
+            }
+            return 0;
+        });
+
+        let total = 0;
+        for (var item in countryList) {
+
+            $('#tableBodyCountry:last-child').append("<tr><td  onclick='panToByName(\"" + countryList[item].name + "\")' >" + countryList[item].name + "</td><td>" + countryList[item].count + "</td></tr>");
+            total += countryList[item].count
+        }
+        $('#tableBodyCountry:last-child').append("<tr><td >Total </td><td>" + total + "</td></tr>");
+    }
+    function panTo(a, b) {
+        mymap.flyTo([a, b], 10);
+    }
+    function panToByName(name) {
+        const geoInfoCountry = allCountries[name];
+        let country = L.geoJson(geoInfoCountry, {
+
+        });
+        mymap.flyToBounds(country.getBounds(), { maxZoom: 5 });
+        
+    }
+    function printUptime(uptime) {
+        var date;
+        var str_out = ''
+        if (uptime) {
+            date = new Date(uptime * 1000);
+            var mm = date.getMonth() + 1; // getMonth() is zero-based
+            var dd = date.getDate();
+
+            str_out = [date.getFullYear(), '.',
+            (mm > 9 ? '' : '0') + mm, '.',
+            (dd > 9 ? '' : '0') + dd, ' ',
+            date.getHours(), ':', date.getMinutes()
+            ].join('');
+
+        }
+        //return uptime ? str_out : '';//'en-US',{ formatMatcher: 'best fit'}):'';
+        return new Date(uptime * 1000).toLocaleString('en-US');
+    }
+    function displayChart(Labels, data) {
+        var ctx = document.getElementById("Chart");
+
+        var chartData = {
+            labels: Labels,
+            datasets: [{
+                data: data,
+                borderWidth: 0,
+                segmentShowStroke: false,
+                backgroundColor: colors,
+            }]
+        };
+        var options = {
+            title: {
+                display: true,
+                text: 'Countries',
+                fontSize: 25
+            },
+            tooltips: {
+                enabled: true,
+                mode: 'single'
+            },
+            legend: {
+                display: false,
+                labels: {
+                    fontColor: '#fff'
+                }
+            },
+            onClick: function (e, d, f) {
+                var label = d[0]._model.label;
+                if (label == 'United States') label = 'United States of America';
+                panToByName(label);
+            }
+        };
+
+        window.Chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: chartData,
+            options: options
+        });
+    }
+    var layerId;
+    var countries = [];
+    var ips = [];
+    var labels = [];
+    var data = [];
+    var colors = [];
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    function clickOnPopup(e) {
+        //setContent
+        var contest = this;
+        
+        getInfo($(this.getPopup().getContent())[0].text).then((successMessage, status, xhr) => {
+            var s = $(this.getPopup().getContent())[0].outerHTML+$(this.getPopup().getContent())[1].outerHTML;
+            for (i in successMessage) {
+                s += i + ": " + successMessage[i] + "<br>"
+            }
+            contest.getPopup().setContent(s);
+
+        }, (text) => console.log(text));
+    }
+    function buildMapv3(nodeList) {
+        var labels = [];
+        var data = [];
+        nodeList.forEach(node => {
+
+
+            if (labels.indexOf(node.country_name) > -1) {
+                var d = data[labels.indexOf(node.country_name)];
+                data[labels.indexOf(node.country_name)] = parseInt(d) + 1;
+            } else {
+                labels.push(node.country_name);
+                data.push(1);
+            }
+
+            colors.push(getRandomColor());
+            var marker = L.marker([node.latitude, node.longitude], { opacity: 0.9 }).bindPopup(`<a href='http://${node.ip}' target=_blank >${node.ip}</a><br>`,{ maxWidth: 700})
+                .setIcon(myIcon)
+                .on('click', clickOnPopup)
+                .openPopup();
+            markers.addLayer(marker);
+            popups.push({ popup: marker, url: node.ip });
+            countries.push({ url: node.ip, name: node.country_name, timeout: node.timeout,data: node.data, uptime: '', geo: [node.latitude, node.longitude] });
+
+        })
+        displayChart(labels, data);
+        displayTable(countries);
+        displayTableWithCountries(countries);
+        $("#nodeTable").tablesorter({ theme: 'blue', sortList: [[5, 0],[6, 0]], widgets: ['zebra'] });
+        
+        function updateNodeStatus() {
+        
+          //  $.tablesorter.clearTableBody($("#nodeTable"));
+          //  $("#nodeTable > tbody >tr").remove();
+            $("#nodeTable").trigger("update");
+        
+        }
+        
+        setTimeout(updateNodeStatus, 5000);
+        
+        mymap.addLayer(markers);
+    }
+    function getInfo(url) {
+        return $.ajax({
+            dataType: "json",
+            url: "http://" + url + ":"+ port+"/getinfo",
+            timeout: 2000,
+            beforeSend: function (xhr) {
+                xhr.url = url,
+                xhr.startTme = Date.now()
+            }
+        });
+
+    }
+
+
+    var markers = L.markerClusterGroup({ chunkedLoading: true });
+    var countryLayers = new Map();
+    var popups = [];
+    var mymap = L.map('mapid');
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        subdomains: ['a', 'b', 'c']
+    }).addTo(mymap);
+
+
+
+
+    L.Control.Watermark = L.Control.extend({
+        onAdd: function (map) {
+            var img = L.DomUtil.create('img');
+
+            img.src = karboLogoPaht;
+            img.style.width = '50px';
+            L.DomEvent
+                .addListener(img, 'click', L.DomEvent.stopPropagation)
+                .addListener(img, 'click', L.DomEvent.preventDefault)
+                .addListener(img, 'click', function () { location.href = 'https://karbo.io'; });
+            return img;
+        },
+
+        onRemove: function (map) {
+            // Nothing to do here
+        }
+    });
+
+    L.control.watermark = function (opts) {
+        return new L.Control.Watermark(opts);
+    }
+
+    L.control.watermark({ position: 'bottomleft' }).addTo(mymap);
+
+    mymap.fitWorld().zoomIn();
+
+    //start
+    $(document).ready(function () {
+        $(".info").hide();
+        getLocations();
+    });
+    
+    function getLocations() {
+                $.get("/getmasternodes", function (data) {
+
+                    if (data.length == 0) {
+                        console.log("node location's not ready...");
+                        setTimeout(getLocations, 1000 * 20);
+                    } else {
+                        buildMapv3(data);
+                        $(".loader").hide();
+
+                    }
+
+                }).fail(function () {
+                    $(".info").show();
+                    $(".info").text("can't load data form server")
+                    $(".loader").hide();
+                });
+    }
+</script>
+</html>
